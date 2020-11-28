@@ -335,6 +335,7 @@ var isNode = function () {
                     hiddenImage.onload();
                 }
             } else if (
+                typeof fileDataForImage.image !== "undefined" ||
                 typeof fileDataForImage.data !== "undefined" &&
                 typeof fileDataForImage.width === "number" &&
                 typeof fileDataForImage.height === "number"
@@ -541,8 +542,19 @@ var isNode = function () {
         }
 
         function analyseImages(img1, img2, width, height) {
-            var data1 = img1.data;
-            var data2 = img2.data;
+            var data1;
+            var data2;
+            if (img1.data === undefined) {
+                data1 = img1.image;
+            } else {
+                data1 = img1.data;
+            }
+            if (img2.data === undefined) {
+                data2 = img2.image;
+            } else {
+                data2 = img2.data;
+            }
+            
             var hiddenCanvas;
             var context;
             var imgd;
@@ -553,7 +565,12 @@ var isNode = function () {
 
                 context = hiddenCanvas.getContext("2d");
                 imgd = context.createImageData(width, height);
-                pix = imgd.data;
+                if (img1.data === undefined) {
+                    pix = img1.image;
+                } else {
+                    pix = imgd.data;
+                }
+               
             }
 
             var mismatchCount = 0;
@@ -970,7 +987,13 @@ var isNode = function () {
             onComplete: function (callback) {
                 updateCallbackArray.push(callback);
                 loadImageData(fileData, function (imageData, width, height) {
-                    parseImage(imageData.data, width, height);
+                    let imageDataGet;
+                    if (imageData.data === undefined) {
+                        imageDataGet = imageData.image;
+                    } else {
+                        imageDataGet = imageData.data;
+                    }
+                    parseImage(imageDataGet, width, height);
                 });
             },
             compareTo: function (secondFileData) {
